@@ -21,16 +21,14 @@ struct Cliente {
     Producto *Productos; //El tamaño de este arreglo depende de la variable // “CantidadProductosAPedir”
 } typedef Cliente;
 
-
-
 void CargarClientes(Cliente *cliente, int cantClientes);
-void CargarProductos(Producto *Productos, int CantProductos);
-void MostrarClientes(Cliente *cliente, int cantClientes);
+void CargaProductos(Producto * Productos, int cantProductos);
+void MostrarCliente(Cliente *cliente, int cantClientes);
 
 int main(){
 
     int cantClientes;
-    Cliente *cliente, *pAuxClientes;
+    Cliente *cliente;
 
     srand(time(NULL));
 
@@ -46,16 +44,11 @@ int main(){
     
     //printf("%d",cantClientes);
 
-    cliente = (Cliente *) malloc(cantClientes * sizeof(cliente));    // reservo la memoria dinamica para esa cantidad de clientes.
+    cliente = (Cliente *)malloc(cantClientes * sizeof(Cliente));
 
+    CargarClientes(cliente, cantClientes);
 
-
-    pAuxClientes = cliente;
-    CargarClientes(pAuxClientes, cantClientes);
-
-
-    pAuxClientes = cliente;
-    MostrarClientes(pAuxClientes, cantClientes);
+    MostrarCliente(cliente, cantClientes);
 
     return 0;
 }
@@ -63,86 +56,60 @@ int main(){
 
 void CargarClientes(Cliente *cliente, int cantClientes){
 
-    char *buff, *Nombre;
-    
-    buff = (char *) malloc( 100 * sizeof(char));
+    char * buff = (char *)malloc(sizeof(char)*100);;
 
     for (int i = 0; i < cantClientes; i++)
     {
-        cliente->ClienteID = i+1;
+        cliente[i].ClienteID = i+1;
+        cliente[i].NombreCliente = (char *)malloc(sizeof(char)*100);
+        //printf("Ingrese el nombre Del Cliente: ");  //Provar mejorar esta parte
+        printf("Ingrese el nombre Del Cliente: ");  //Provar mejorar esta parte
         fflush(stdin);
-        printf("\n\nIngrese el Nombre del Cliente, por favor:\n");
+        //gets(cliente[i].NombreCliente);
         gets(buff);
-        cliente->NombreCliente = (char *)malloc( (strlen(buff)+1) * sizeof(char) );
-        strcpy(cliente->NombreCliente, buff);
-        cliente->CantidadProductosAPedir = rand() % 4 + 1;
-
-        //printf("%d \n", cliente->CantidadProductosAPedir);
-        cliente->Productos = (Producto *) malloc(cliente->CantidadProductosAPedir * sizeof(Producto));
-
-        CargarProductos(cliente->Productos, cliente->CantidadProductosAPedir);
-        cliente++;
+        cliente[i].NombreCliente = (char *)malloc((strlen(buff) +1) * sizeof(char));
+        strcpy(cliente[i].NombreCliente, buff);
+        cliente[i].CantidadProductosAPedir = rand() % 5 +1;
+        int cantProductos = cliente[i].CantidadProductosAPedir;
+        cliente[i].Productos = (Producto *)malloc(cliente->CantidadProductosAPedir * sizeof(Producto));
+        CargaProductos(cliente[i].Productos, cantProductos);
     }
     free(buff);
 }
 
 
-void CargarProductos(Producto *Productos, int CantProductos){
+void CargaProductos(Producto * productos, int cantProductos){
 
-    char *buff;
-    buff = (char *) malloc(100 * sizeof(char));
-
-    //printf("asdasd %d\n",CantProductos);
-
-    for (int i = 0; i < CantProductos; i++)
+    for (int j = 0; j < cantProductos; j++)
     {
-        Productos->ProductoID = i+1;
-        Productos->Cantidad = rand() % 9 + 1;
-        Productos->PrecioUnitario = rand() % 900 + 100;
-        buff = TiposProductos[(rand()%4)];
-        Productos->TipoProducto = (char *) malloc( (strlen(buff) +1) * sizeof(char) );
-        strcpy(Productos->TipoProducto, buff);
-        Productos++;
+        productos[j].ProductoID = j +1;
+        productos[j].Cantidad = rand() %10 +1;
+        productos[j].PrecioUnitario = rand() % 100 + 10;
+        productos[j].TipoProducto = (char *)malloc(20*sizeof(char));
+        productos[j].TipoProducto = *(TiposProductos + rand()%5);
     }
-    //free(buff);
 }
 
 
-void MostrarClientes(Cliente *cliente, int cantClientes){
 
-    printf("\n\n\nLISTADOS DE LOS CLIENTES\n");
-    for (int i = 0; i < cantClientes; i++)
-    {
-        printf("\n\nCliente ID: %d\nNombre del Cliente: ",cliente->ClienteID);
-        puts(cliente->NombreCliente);
-        printf("Cantidad de Productos: %d\n", cliente->CantidadProductosAPedir);
-        printf("\n   Detalle de los productos del cliente:");
-        for (int j = 0; j < cliente->CantidadProductosAPedir; j++)
-        {
-            printf("\n      Tipo de Producto: ");
-            puts(cliente->Productos->TipoProducto);
-            printf("      Id del Producto: %d\n      Precio Unitario: %d\n      Cantidad: %d\n\n", cliente->Productos->ProductoID, cliente->Productos->PrecioUnitario, cliente->Productos->Cantidad);
-            cliente->Productos++;
-        }
-        
-        cliente++;
-    }
+
+void MostrarCliente(Cliente *Cliente, int canti){
     
+    for(int k = 0; k < canti; k++){
+        printf("\n------Cliente[%d]------\n", k+1);
+        printf("Id del Cliente: %d\n", Cliente[k].ClienteID);
+        printf("Nombre : %s\n", Cliente[k].NombreCliente);
+        printf("Cantidad de productos: %d\n\n",Cliente[k].CantidadProductosAPedir);
+        printf("    PRODUCTOS\n");
+
+        for(int m = 0; m < Cliente[k].CantidadProductosAPedir; m++){
+            printf("    ID del producto: %d\n", Cliente[k].Productos[m].ProductoID);
+            printf("    Cantidad: %d\n", Cliente[k].Productos[m].Cantidad);
+            printf("    Precio unitario: %2.f\n", Cliente[k].Productos[m].PrecioUnitario);
+            printf("    Productos que lleva: %s\n\n", Cliente[k].Productos[m].TipoProducto);
+        }
+    }
+    free(Cliente);
 }
 
-/*  
 
-    ***************************
-    **                       **
-    **        ######         **     1) Porque si descomento el free(buff) de la función CargarProductos se me produce un error.?
-    **      ####   ####      **     
-    **      ##     ###       **     2) Porque solo cuando estoy debugeando se me imprimen los detalles de los clientes.?
-    **          ###          **     
-    **         ###           **     3) Porque a veces me toma el primer nombre, y a veces no.?
-    **         ##            **
-    **                       **
-    **         ##            **
-    **                       **
-    ***************************
-
-*/
